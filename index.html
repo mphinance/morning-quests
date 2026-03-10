@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Morning Quests">
+  <meta name="theme-color" content="#0a0a1a">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Morning Quests ⚔️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Animated gradient background -->
+  <div id="gradientBg"></div>
+  <div id="particles"></div>
+
+  <!-- Splash -->
+  <div id="splash" class="splash">
+    <div class="splash-content">
+      <div class="splash-icon">⚔️</div>
+      <div class="splash-title">Morning Quests</div>
+    </div>
+  </div>
+
+  <!-- Profile Picker (shown if multiple profiles) -->
+  <div id="profilePicker" class="overlay">
+    <div class="overlay-content profile-picker-content">
+      <h2 class="overlay-title">👋 Who's questing?</h2>
+      <div id="profileList" class="profile-list"></div>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <!-- Header -->
+    <header id="header" class="glass-card header">
+      <div class="header-top">
+        <div class="header-left">
+          <button class="profile-avatar-btn" id="profileAvatarBtn" title="Switch profile"></button>
+          <h1 class="title" id="appTitle">⚔️ Morning Quests</h1>
+        </div>
+        <div class="header-right">
+          <div class="streak-badge" id="streakBadge">
+            <span class="streak-fire">🔥</span>
+            <span class="streak-count" id="streakCount">0</span>
+          </div>
+          <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙️</button>
+        </div>
+      </div>
+      <div class="milestones" id="milestones"></div>
+      <div class="progress-container">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div><div class="progress-stars" id="progressStars"></div></div>
+        <div class="progress-text" id="progressText">0 / 5 Quests</div>
+      </div>
+    </header>
+
+    <!-- Views -->
+    <div id="views" class="views">
+      <!-- Quests View -->
+      <div id="viewQuests" class="view active">
+        <main id="questList" class="quest-list"></main>
+        <div class="xp-bar glass-card" id="xpBar">
+          <span class="xp-label">⭐ XP:</span>
+          <span class="xp-value" id="xpValue">0</span>
+          <span class="xp-total" id="xpTotal">/ 100</span>
+        </div>
+        <div class="approval-banner glass-card" id="approvalBanner">
+          <span class="approval-icon">⏳</span>
+          <span class="approval-text">Tap for parent approval</span>
+        </div>
+      </div>
+
+      <!-- Bank View -->
+      <div id="viewBank" class="view">
+        <div class="robux-bank glass-card">
+          <div class="bank-header"><span class="bank-icon">🏦</span><span class="bank-title">Robux Bank</span></div>
+          <div class="bank-balance"><span class="bank-amount" id="bankBalance">0</span><span class="bank-currency">R$</span></div>
+          <div class="bank-earn-info">
+            <div class="bank-earn-row"><span>⭐ <span id="bankDaysLabel">7</span> days in a row</span><span class="bank-earn-reward" id="bankRobuxLabel">+100 R$</span></div>
+            <div class="bank-earn-row"><span>💰 Save &amp; earn interest</span><span class="bank-earn-reward" id="bankInterestLabel">+10% / week</span></div>
+          </div>
+          <div class="bank-details">
+            <div class="bank-detail"><span class="bank-detail-label">💰 Interest earned</span><span class="bank-detail-value" id="bankInterest">0 R$</span></div>
+            <div class="bank-detail"><span class="bank-detail-label">📈 Next interest</span><span class="bank-detail-value" id="bankNextInterest">—</span></div>
+          </div>
+          <div class="bank-goal">
+            <div class="bank-goal-label"><span>🎯 Savings Goal</span><span class="bank-goal-text" id="bankGoalText">0 / 500 R$</span></div>
+            <div class="bank-goal-bar"><div class="bank-goal-fill" id="bankGoalFill"></div></div>
+          </div>
+          <div class="bank-fx">
+            <div class="bank-fx-title">💱 Exchange Rates</div>
+            <div class="bank-fx-row"><span class="fx-icon">💵</span><span class="fx-label">USD</span><span class="fx-value" id="fxUSD">$0.00</span></div>
+            <div class="bank-fx-row"><span class="fx-icon">⛏️</span><span class="fx-label">Minecoins</span><span class="fx-value" id="fxMinecoins">0 MC</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar View -->
+      <div id="viewCalendar" class="view">
+        <div class="calendar-card glass-card">
+          <div class="calendar-header">
+            <button class="calendar-nav" id="calPrev">◀</button>
+            <span class="calendar-month" id="calMonth">March 2026</span>
+            <button class="calendar-nav" id="calNext">▶</button>
+          </div>
+          <div class="calendar-days">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+          </div>
+          <div id="calGrid" class="calendar-grid"></div>
+          <div class="calendar-legend">
+            <span><span class="legend-dot legend-done"></span> Done</span>
+            <span><span class="legend-dot legend-missed"></span> Missed</span>
+            <span><span class="legend-dot legend-excused"></span> Excused</span>
+          </div>
+        </div>
+        <div class="weekly-summary glass-card" id="weeklySummary">
+          <div class="weekly-title">📊 This Week</div>
+          <div class="weekly-bars" id="weeklyBars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="nav-bar glass-card" id="navBar">
+      <button class="nav-tab active" data-view="viewQuests"><span class="nav-icon">⚔️</span><span class="nav-label">Quests</span></button>
+      <button class="nav-tab" data-view="viewBank"><span class="nav-icon">🏦</span><span class="nav-label">Bank</span></button>
+      <button class="nav-tab" data-view="viewCalendar"><span class="nav-icon">📅</span><span class="nav-label">History</span></button>
+    </nav>
+  </div>
+
+  <!-- Timer Overlay -->
+  <div id="timerOverlay" class="overlay">
+    <div class="timer-content">
+      <div class="timer-quest-name" id="timerQuestName">Brush Teeth</div>
+      <div class="timer-ring-wrap">
+        <svg class="timer-ring" viewBox="0 0 200 200">
+          <circle class="timer-ring-bg" cx="100" cy="100" r="90"/>
+          <circle class="timer-ring-progress" id="timerRingProgress" cx="100" cy="100" r="90"/>
+        </svg>
+        <div class="timer-display" id="timerDisplay">60</div>
+      </div>
+      <div class="timer-subtitle">Keep going! 💪</div>
+    </div>
+  </div>
+
+  <!-- Victory Overlay -->
+  <div id="victoryOverlay" class="overlay">
+    <div class="overlay-content victory-content">
+      <div class="victory-stars">⭐ ⭐ ⭐ ⭐ ⭐</div>
+      <h2 class="victory-title">QUEST COMPLETE!</h2>
+      <div class="victory-icon">🏆</div>
+      <p class="victory-message">All morning quests finished!</p>
+      <p class="victory-unlock">🎮 iPad UNLOCKED! 🎮</p>
+      <div class="victory-xp" id="victoryXp">+100 XP Earned Today</div>
+      <div class="victory-robux" id="victoryRobux"></div>
+      <div class="victory-streak" id="victoryStreak"></div>
+      <div class="victory-milestone" id="victoryMilestone"></div>
+    </div>
+  </div>
+
+  <!-- PIN Overlay -->
+  <div id="pinOverlay" class="overlay">
+    <div class="overlay-content pin-modal">
+      <div class="pin-header"><h3 class="pin-title" id="pinTitle">🔒 Parent Approval</h3><button class="pin-close" id="pinClose">✕</button></div>
+      <p class="pin-subtitle" id="pinSubtitle">Enter PIN to approve</p>
+      <div class="pin-dots" id="pinDots"><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span></div>
+      <div class="pin-error" id="pinError"></div>
+      <div class="pin-pad">
+        <button class="pin-key" data-key="1">1</button><button class="pin-key" data-key="2">2</button><button class="pin-key" data-key="3">3</button>
+        <button class="pin-key" data-key="4">4</button><button class="pin-key" data-key="5">5</button><button class="pin-key" data-key="6">6</button>
+        <button class="pin-key" data-key="7">7</button><button class="pin-key" data-key="8">8</button><button class="pin-key" data-key="9">9</button>
+        <button class="pin-key pin-key-blank"></button><button class="pin-key" data-key="0">0</button><button class="pin-key pin-key-delete" data-key="delete">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Overlay -->
+  <div id="settingsOverlay" class="overlay">
+    <div class="overlay-content settings-modal">
+      <div class="settings-header"><h3 class="settings-title">⚙️ Settings</h3><button class="settings-close" id="settingsClose">✕</button></div>
+      <div class="settings-body" id="settingsBody"></div>
+    </div>
+  </div>
+
+  <!-- Quest Editor Overlay -->
+  <div id="questEditorOverlay" class="overlay">
+    <div class="overlay-content editor-modal">
+      <div class="editor-header"><h3 class="editor-title">📝 Edit Quests</h3><button class="editor-close" id="editorClose">✕</button></div>
+      <div id="editorList" class="editor-list"></div>
+      <button class="editor-add" id="editorAdd">+ Add Quest</button>
+      <button class="editor-save" id="editorSave">💾 Save Changes</button>
+    </div>
+  </div>
+
+  <!-- Profile Manager Overlay -->
+  <div id="profileManagerOverlay" class="overlay">
+    <div class="overlay-content profile-manager-modal">
+      <div class="pm-header"><h3 class="pm-title">👥 Profiles</h3><button class="pm-close" id="pmClose">✕</button></div>
+      <div id="pmList" class="pm-list"></div>
+      <button class="editor-add" id="pmAdd">+ Add Profile</button>
+    </div>
+  </div>
+
+  <canvas id="confettiCanvas"></canvas>
+  <script src="app.js"></script>
+</body>
+</html>
