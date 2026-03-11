@@ -382,7 +382,8 @@ function checkPin(){
     else fail();
   } else if(pinMode==='change-new'){
     newPinCandidate=pinBuffer; success();
-    setTimeout(()=>{closePin();openPin('change-confirm');},400);
+    const saved=newPinCandidate;
+    setTimeout(()=>{closePin();newPinCandidate=saved;openPin('change-confirm');},400);
   } else if(pinMode==='change-confirm'){
     if(pinBuffer===newPinCandidate){ state.pin=newPinCandidate; save(); success(); setTimeout(()=>{closePin();openSettings();},400); }
     else fail("PINs don't match");
