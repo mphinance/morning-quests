@@ -55,12 +55,19 @@ Replace your falling-apart paper chore chart with something your kid will actual
 
 ## Quick Start
 
+### Option 1: Static (no persistence)
 ```bash
 # No dependencies. Just serve the files:
 python3 -m http.server 8080
-# or
-npx serve .
 ```
+Data lives in the browser's `localStorage` only.
+
+### Option 2: FastAPI (recommended — server-side persistence)
+```bash
+pip install fastapi uvicorn
+uvicorn server:app --host 0.0.0.0 --port 8080
+```
+State is saved to a `data/` directory on the server. History, streaks, and bank balances survive across devices and cache clears. The app auto-detects the API and syncs transparently.
 
 Open `http://localhost:8080` on your browser or iPad.
 
@@ -87,19 +94,21 @@ Everything is configurable from the **parent settings UI** (⚙️ → PIN):
 
 ## Tech Stack
 
-- **HTML/CSS/JS** — zero dependencies, no build step
+- **HTML/CSS/JS** — zero frontend dependencies, no build step
+- **FastAPI** — optional Python backend for server-side state persistence
 - **Web Audio API** — synthesized 8-bit sounds
-- **localStorage** — all data persists locally
+- **localStorage + server sync** — works offline, syncs when connected
 - **PWA** — `manifest.json` + meta tags for home screen install
-- **~1000 lines total** across 3 files
 
 ## File Structure
 
 ```
 ├── index.html       # App shell & overlays
 ├── style.css        # Glassmorphism UI & animations
-├── app.js           # All logic (~500 lines)
+├── app.js           # Client logic + server sync
+├── server.py        # FastAPI backend (optional)
 ├── manifest.json    # PWA manifest
+├── data/            # Server-side state (gitignored)
 └── screenshots/     # App screenshots
 ```
 

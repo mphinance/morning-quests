@@ -6,6 +6,7 @@ const STORAGE_KEY = 'morning_quests_v2';
 const ROBUX_TO_USD = 9.99/800;
 const MC_PER_ROBUX = (320/1.99)/(800/9.99);
 const CIRCUMFERENCE = 2 * Math.PI * 90; // timer ring
+const API_BASE = ''; // same-origin
 
 const DEFAULT_QUESTS = [
   {id:'breakfast',icon:'🥣',name:'Eat Breakfast',subtitle:'Fuel up for your adventure!',xp:20,timer:0},
@@ -73,15 +74,28 @@ let state, pinBuffer='', pinMode=null, newPinCandidate='',
 
 const $=id=>document.getElementById(id);
 
-function loadState(){
+function loadStateLocal(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
     if(raw){ const s=JSON.parse(raw); if(s.version===2) return s; }
-    // Try V1 migration
     const v1=localStorage.getItem('kilian_morning_quests');
     if(v1){ return migrateV1(JSON.parse(v1)); }
   }catch(e){}
   return freshState();
+}
+
+async function loadStateFromServer(){
+  try{
+    const r=await fetch(`${API_BASE}/api/state`);
+    if(r.ok && r.status===200){ const s=await r.json(); if(s&&s.version===2) return s; }
+  }catch(e){}
+  return null;
+}
+
+async function loadState(){
+  const server=await loadStateFromServer();
+  if(server) return server;
+  return loadStateLocal();
 }
 
 function migrateV1(v1){
@@ -115,7 +129,11 @@ function freshState(){
   };
 }
 
-function save(){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){} }
+function save(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+  // Fire-and-forget server sync
+  try{fetch(`${API_BASE}/api/state`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(state)}).catch(()=>{});}catch(e){}
+}
 function prof(){ return state.profiles.find(p=>p.id===state.activeProfileId)||state.profiles[0]; }
 function today(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function yesterday(){ const d=new Date(); d.setDate(d.getDate()-1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -839,8 +857,8 @@ function bindEvents(){
 }
 
 // ============ INIT ============
-function init(){
-  state=loadState();
+async function init(){
+  state=await loadState();
   const now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
 
   createParticles();
