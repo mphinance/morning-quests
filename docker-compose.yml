@@ -1,0 +1,9 @@
+services:
+  morning-quests:
+    build: .
+    container_name: morning-quests
+    restart: unless-stopped
+    ports:
+      - "8402:8082"
+    volumes:
+      - ./data:/app/data

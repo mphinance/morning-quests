@@ -70,7 +70,7 @@ const Sound = (() => {
 
 // ============ STATE ============
 let state, pinBuffer='', pinMode=null, newPinCandidate='',
-    timerInterval=null, calYear, calMonth, pendingTimerQuest=null;
+    timerInterval=null, timerPaused=false, calYear, calMonth, pendingTimerQuest=null;
 
 const $=id=>document.getElementById(id);
 
@@ -254,7 +254,7 @@ function renderBank(p){
   $('bankBalance').textContent=p.robuxBalance;
   $('bankDaysLabel').textContent=c.daysPerStar;
   $('bankRobuxLabel').textContent=`+${c.robuxPerStar} R$`;
-  $('bankInterestLabel').textContent=`+${Math.round(c.interestRate*100)}% / week`;
+  $('bankInterestLabel').textContent=`+${Math.round(c.interestRate*100)}% free every week`;
   $('bankInterest').textContent=`${p.robuxInterestEarned} R$`;
   $('bankNextInterest').textContent=p.robuxBalance>0?getNextInterestDay(p):'—';
   const gp=Math.min(100,(p.robuxBalance/c.savingsGoal)*100);
@@ -319,6 +319,7 @@ function completeQuest(qid){
 // ============ TIMER ============
 function startTimer(quest){
   pendingTimerQuest=quest;
+  timerPaused=false;
   let remaining=quest.timer;
   $('timerQuestName').textContent=`${quest.icon} ${quest.name}`;
   $('timerDisplay').textContent=remaining;
@@ -326,8 +327,12 @@ function startTimer(quest){
   ring.style.strokeDasharray=CIRCUMFERENCE;
   ring.style.strokeDashoffset=0;
   $('timerOverlay').classList.add('active');
+  $('timerPauseBtn').textContent='⏸️ Pause';
+  $('timerSubtitle').textContent='Keep going! 💪';
+  $('timerOverlay').classList.remove('paused');
 
   timerInterval=setInterval(()=>{
+    if(timerPaused) return;
     remaining--;
     $('timerDisplay').textContent=remaining;
     const pct=(quest.timer-remaining)/quest.timer;
@@ -339,11 +344,26 @@ function startTimer(quest){
       if(navigator.vibrate) navigator.vibrate([100,50,100]);
       setTimeout(()=>{
         $('timerOverlay').classList.remove('active');
+        $('timerOverlay').classList.remove('paused');
         if(pendingTimerQuest) completeQuest(pendingTimerQuest.id);
         pendingTimerQuest=null;
       },600);
     }
   },1000);
+}
+
+function toggleTimerPause(){
+  timerPaused=!timerPaused;
+  if(timerPaused){
+    $('timerPauseBtn').textContent='▶️ Resume';
+    $('timerSubtitle').textContent='Paused — tap to continue!';
+    $('timerOverlay').classList.add('paused');
+  } else {
+    $('timerPauseBtn').textContent='⏸️ Pause';
+    $('timerSubtitle').textContent='Keep going! 💪';
+    $('timerOverlay').classList.remove('paused');
+  }
+  Sound.click();
 }
 
 // ============ PIN ============
@@ -579,7 +599,7 @@ function openSettings(){
       <p class="setting-desc">Manage balance & cashouts</p>
       <div class="bank-settings-info">
         <span>Balance: <strong>${p.robuxBalance}</strong> R$</span>
-        <span>Interest earned: <strong>${p.robuxInterestEarned}</strong> R$</span>
+        <span>Free bonus earned: <strong>${p.robuxInterestEarned}</strong> R$</span>
       </div>
       <button class="setting-action setting-cashout" id="cashoutBtn">💸 Cash Out All</button>
     </div>
@@ -591,7 +611,7 @@ function openSettings(){
     <div class="setting-group">
       <label class="setting-label">Stats</label>
       <div class="stats-grid">
-        <div class="stat-item"><span class="stat-value">${p.streak}</span><span class="stat-label">Streak</span></div>
+        <div class="stat-item"><span class="stat-value">${p.streak}</span><span class="stat-label">Days in a row</span></div>
         <div class="stat-item"><span class="stat-value">${p.stars}</span><span class="stat-label">Stars</span></div>
         <div class="stat-item"><span class="stat-value">${p.totalXp}</span><span class="stat-label">XP</span></div>
         <div class="stat-item"><span class="stat-value">${p.robuxLifetime}</span><span class="stat-label">R$ earned</span></div>
@@ -828,6 +848,7 @@ function switchView(viewId){
 
 // ============ EVENTS ============
 function bindEvents(){
+  $('timerPauseBtn').addEventListener('click',toggleTimerPause);
   $('approvalBanner').addEventListener('click',()=>openPin('approve'));
   $('settingsBtn').addEventListener('click',()=>openPin('settings'));
   $('pinClose').addEventListener('click',closePin);

@@ -195,6 +195,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100%;
 .timer-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
 .timer-ring-progress{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:565.48;stroke-dashoffset:0;transition:stroke-dashoffset .3s linear}
 .timer-display{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--pixel);font-size:2.5rem;color:var(--text);text-shadow:0 0 20px rgba(233,69,96,.4)}
+.timer-pause-btn{font-family:var(--font);font-size:1rem;font-weight:700;padding:12px 36px;border:2px solid var(--blue);border-radius:14px;background:rgba(68,138,255,.12);color:var(--blue);cursor:pointer;transition:all .2s;margin-bottom:16px;touch-action:manipulation}
+.timer-pause-btn:active{transform:scale(.93);background:rgba(68,138,255,.25)}
+.overlay.paused .timer-pause-btn{border-color:var(--green);color:var(--green);background:rgba(0,230,118,.12);animation:pauseGlow 1.5s ease-in-out infinite}
+.overlay.paused .timer-ring-progress{stroke:var(--text3);transition:stroke .3s}
+.overlay.paused .timer-display{opacity:.5}
+@keyframes pauseGlow{0%,100%{box-shadow:0 0 8px rgba(0,230,118,.15)}50%{box-shadow:0 0 20px rgba(0,230,118,.4)}}
 .timer-subtitle{font-size:.9rem;color:var(--text2)}
 
 /* Overlays */
